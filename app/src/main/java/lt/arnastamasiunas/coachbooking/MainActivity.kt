@@ -5,9 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.RoundRect
 import androidx.navigation.compose.*
 import lt.arnastamasiunas.coachbooking.data.AuthRepository
 import lt.arnastamasiunas.coachbooking.data.UserRepository
+import lt.arnastamasiunas.coachbooking.navigation.Routes
+import lt.arnastamasiunas.coachbooking.ui.RootScreen
+import lt.arnastamasiunas.coachbooking.ui.ClientHomeScreen
+import lt.arnastamasiunas.coachbooking.ui.TrainerHomeScreen
 import lt.arnastamasiunas.coachbooking.ui.auth.LoginScreen
 import lt.arnastamasiunas.coachbooking.ui.auth.RegisterScreen
 import lt.arnastamasiunas.coachbooking.ui.theme.CoachBookingTheme
@@ -24,9 +29,13 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(
                     navController = navController,
-                    startDestination = "login"
+                    startDestination = Routes.ROOT
                 ) {
-                    composable("login") {
+                    composable(Routes.ROOT) {
+                        RootScreen(navController, authRepo, userRepo)
+                    }
+
+                    composable(Routes.LOGIN) {
                         LoginScreen(
                             onLogin = {email, password ->
                                 authRepo.login(email, password)
@@ -34,27 +43,27 @@ class MainActivity : ComponentActivity() {
                                 val role = userRepo.getRole(uid)
 
                                 navController.navigate(
-                                    if (role === "trainer") "trainer_home" else "client_home"
+                                    if (role === "trainer") Routes.TRAINER_HOME else Routes.CLIENT_HOME
                                 ) {
-                                    popUpTo("login") { inclusive = true }
+                                    popUpTo(Routes.LOGIN) { inclusive = true }
                                 }
                             },
                             onGoRegister = {
-                                navController.navigate("register")
+                                navController.navigate(Routes.REGISTER)
                             }
                         )
                     }
 
-                    composable("register") {
+                    composable(Routes.REGISTER) {
                         RegisterScreen(
                             onRegister = {email, password, role ->
                                 val uid = authRepo.register(email, password)
                                 userRepo.createUser(uid, email, role)
 
                                 navController.navigate(
-                                    if (role === "trainer") "trainer_home" else "client_home"
+                                    if (role === "trainer") Routes.TRAINER_HOME else Routes.CLIENT_HOME
                                 ) {
-                                    popUpTo("login") { inclusive = true }
+                                    popUpTo(Routes.LOGIN) { inclusive = true }
                                 }
                             },
                             onGoLogin = {
@@ -63,23 +72,8 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable("client_home") {
-                        //Temp stub
-                        androidx.compose.material3.Surface(
-                            modifier = androidx.compose.ui.Modifier.fillMaxSize()
-                        ) {
-                            androidx.compose.material3.Text("CLIENT_HOME")
-                        }
-                    }
-
-                    composable("trainer_home") {
-                        //Temp stub
-                        androidx.compose.material3.Surface(
-                            modifier = androidx.compose.ui.Modifier.fillMaxSize()
-                        ) {
-                            androidx.compose.material3.Text("TRAINER_HOME")
-                        }
-                    }
+                    composable(Routes.CLIENT_HOME) { ClientHomeScreen() }
+                    composable(Routes.TRAINER_HOME) { TrainerHomeScreen() }
                 }
             }
         }
