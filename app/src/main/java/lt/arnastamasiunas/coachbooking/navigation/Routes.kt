@@ -6,4 +6,5 @@ object Routes {
     const val REGISTER = "register"
     const val CLIENT_HOME = "client_home"
     const val TRAINER_HOME = "trainer_home"
+    const val BOOKING = "booking"
 }

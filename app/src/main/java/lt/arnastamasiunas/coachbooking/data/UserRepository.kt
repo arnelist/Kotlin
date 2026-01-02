@@ -2,6 +2,7 @@ package lt.arnastamasiunas.coachbooking.data
 
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import lt.arnastamasiunas.coachbooking.model.TrainerUser
 
 class UserRepository(
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -32,5 +33,23 @@ class UserRepository(
             .await()
 
         return snapshot.getString("role") ?: "client"
+    }
+
+    suspend fun getTrainers(): List<TrainerUser> {
+        val snapshot = db.collection("users")
+            .whereEqualTo("role", "trainer")
+            .get()
+            .await()
+
+        return snapshot.documents.map { doc ->
+            TrainerUser(
+                uid = doc.getString("uid") ?: doc.id,
+                email = doc.getString("email") ?: ""
+            )
+        }.sortedBy { it.email.lowercase() }
+    }
+
+    suspend fun createTrainerDoc(uid: String, email: String) {
+        createUser(uid = uid, email = email, role = "trainer")
     }
 }
