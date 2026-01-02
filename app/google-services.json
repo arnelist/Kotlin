@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "760587660620",
+    "project_id": "coachbookingkotlin",
+    "storage_bucket": "coachbookingkotlin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:760587660620:android:fceac4f76dc644478c33e9",
+        "android_client_info": {
+          "package_name": "lt.arnastamasiunas.coachbooking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBivd0SWG66chj66SM_O3cz_FP39tbyFFM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
