@@ -24,10 +24,8 @@ class ReservationRepository(
                 throw IllegalStateException("Šis laikas jau užimtas.")
             }
 
-            // 1) pažymim timeslot kaip booked
             tx.update(timeslotRef, "status", "booked")
 
-            // 2) sukuriam reservation
             val reservationData = hashMapOf(
                 "clientId" to clientId,
                 "trainerId" to trainerId,

@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import lt.arnastamasiunas.coachbooking.data.AuthRepository
 import lt.arnastamasiunas.coachbooking.data.ReservationRepository
 import lt.arnastamasiunas.coachbooking.data.TimeslotRepository
@@ -26,6 +27,7 @@ fun BookingScreen(
     reservationRepo: ReservationRepository,
     onBack: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     val formatter = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
     val today = remember { LocalDate.now() }
     val days = remember { (0..6).map { today.plusDays(it.toLong()) } }
@@ -35,7 +37,9 @@ fun BookingScreen(
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var slotToBook by remember { mutableStateOf<Timeslot?>(null) }
+    var bookingSlot by remember { mutableStateOf<Timeslot?>(null) }
     var bookingLoading by remember { mutableStateOf(false) }
+    var toast by remember { mutableStateOf<String?>(null) }
 
     fun selectedDateStr() = selectedDay.format(formatter)
 
@@ -111,14 +115,10 @@ fun BookingScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable(enabled = !disabled) {
-                                        slotToBook = slot
-                                    }
+                                    .clickable(enabled = !disabled) { bookingSlot = slot }
                             ) {
                                 Row(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(14.dp),
+                                    Modifier.fillMaxWidth().padding(14.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -154,5 +154,55 @@ fun BookingScreen(
                 }
             }
         }
+    }
+
+    if (bookingSlot != null) {
+        val s = bookingSlot!!
+
+        AlertDialog(
+            onDismissRequest = {
+                if (!bookingLoading) bookingSlot = null
+            },
+            title = { Text("Patvirtinti rezervaciją?") },
+            text = { Text("${selectedDateStr()}  ${s.start} - ${s.end}") },
+            confirmButton = {
+                TextButton(
+                    enabled = !bookingLoading,
+                    onClick = {
+                        bookingLoading = true
+                        scope.launch {
+                            try {
+                                val clientId = authRepo.currentUid()
+                                    ?: error("Neprisijungęs vartotojas")
+
+                                reservationRepo.createReservationTransactional(
+                                    clientId = clientId,
+                                    trainerId = trainerId,
+                                    date = selectedDateStr(),
+                                    start = s.start,
+                                    end = s.end,
+                                    timeslotId = s.id
+                                )
+
+                                loadTimeslots()
+                            } finally {
+                                bookingLoading = false
+                                bookingSlot = null
+                            }
+                        }
+                    }
+                ) {
+                    Text(if (bookingLoading) "Rezervuojama..." else "Patvirtinti")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    enabled = !bookingLoading,
+                    onClick = { bookingSlot = null }
+                ) {
+                    Text("Atšaukti")
+                }
+            }
+        )
     }
 }

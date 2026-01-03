@@ -6,7 +6,7 @@ data class Timeslot(
     val date: String = "",     // "yyyy-MM-dd"
     val start: String = "",    // "HH:mm"
     val end: String = "",      // "HH:mm"
-    val status: String = "",   // "booked" / "available" (ar koks pas tave)
+    val status: String = "",
     val order: Long = 0L
 ) {
     val isBooked: Boolean get() = status.lowercase() == "booked"

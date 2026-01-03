@@ -26,4 +26,23 @@ class TimeslotRepository(
             )
         }.sortedBy { it.order }
     }
+
+    suspend fun createTimeslot(
+        trainerId: String,
+        date: String,
+        start: String,
+        end: String,
+        order: Long
+    ) {
+        val data = hashMapOf(
+            "trainerId" to trainerId,
+            "date" to date,
+            "start" to start,
+            "end" to end,
+            "status" to "free",
+            "order" to order,
+            "createdAt" to System.currentTimeMillis()
+        )
+        db.collection("timeslots").add(data).await()
+    }
 }

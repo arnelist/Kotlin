@@ -20,6 +20,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import lt.arnastamasiunas.coachbooking.data.ReservationRepository
 import lt.arnastamasiunas.coachbooking.data.TimeslotRepository
+import lt.arnastamasiunas.coachbooking.ui.trainer.TrainerTimeslotCreatorScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +50,7 @@ class MainActivity : ComponentActivity() {
                                 val role = userRepo.getRole(uid)
 
                                 navController.navigate(
-                                    if (role === "trainer") Routes.TRAINER_HOME else Routes.CLIENT_HOME
+                                    if (role == "trainer") Routes.TRAINER_HOME else Routes.CLIENT_HOME
                                 ) {
                                     popUpTo(Routes.LOGIN) { inclusive = true }
                                 }
@@ -67,7 +68,7 @@ class MainActivity : ComponentActivity() {
                                 userRepo.createUser(uid, email, role)
 
                                 navController.navigate(
-                                    if (role === "trainer") Routes.TRAINER_HOME else Routes.CLIENT_HOME
+                                    if (role == "trainer") Routes.TRAINER_HOME else Routes.CLIENT_HOME
                                 ) {
                                     popUpTo(Routes.LOGIN) { inclusive = true }
                                 }
@@ -96,11 +97,10 @@ class MainActivity : ComponentActivity() {
 
                     composable(Routes.TRAINER_HOME) {
                         TrainerHomeScreen(
+                            onCreateTimeslot = { navController.navigate(Routes.TRAINER_CREATE_SLOT) },
                             onLogout = {
                                 authRepo.logout()
-                                navController.navigate(Routes.LOGIN) {
-                                    popUpTo(0)
-                                }
+                                navController.navigate(Routes.LOGIN) { popUpTo(0) }
                             }
                         )
                     }
@@ -121,6 +121,14 @@ class MainActivity : ComponentActivity() {
                             authRepo = authRepo,
                             timeslotRepo = timeslotRepo,
                             reservationRepo = reservationRepo,
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable(Routes.TRAINER_CREATE_SLOT) {
+                        TrainerTimeslotCreatorScreen(
+                            authRepo = authRepo,
+                            timeslotRepo = timeslotRepo,
                             onBack = { navController.popBackStack() }
                         )
                     }

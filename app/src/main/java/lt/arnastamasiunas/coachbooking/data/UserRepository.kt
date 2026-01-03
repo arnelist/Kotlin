@@ -26,13 +26,9 @@ class UserRepository(
             .await()
     }
 
-    suspend fun getRole(uid: String):String {
-        val snapshot = db.collection("users")
-            .document(uid)
-            .get()
-            .await()
-
-        return snapshot.getString("role") ?: "client"
+    suspend fun getRole(uid: String): String {
+        val doc = db.collection("users").document(uid).get().await()
+        return (doc.getString("role") ?: "client").trim().lowercase()
     }
 
     suspend fun getTrainers(): List<TrainerUser> {
