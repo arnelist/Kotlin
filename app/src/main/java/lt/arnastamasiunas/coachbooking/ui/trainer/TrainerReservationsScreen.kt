@@ -14,6 +14,10 @@ import lt.arnastamasiunas.coachbooking.data.ReservationRepository
 import lt.arnastamasiunas.coachbooking.data.UserRepository
 import lt.arnastamasiunas.coachbooking.model.Reservation
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.core.tween
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,13 +89,18 @@ fun TrainerReservationsScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(reservations) { r ->
-                        val clientEmail = clientEmails[r.clientId] ?: r.clientId
 
-                        Card(Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(14.dp)) {
-                                Text(clientEmail, style = MaterialTheme.typography.titleMedium)
-                                Spacer(Modifier.height(4.dp))
-                                Text("${r.date}  ${r.start}-${r.end}")
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(tween(220)) + slideInVertically(tween(220)) { it/6 }
+                        ) {
+                            Card(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large) {
+                                Column(Modifier.padding(14.dp)) {
+                                    val clientEmail = clientEmails[r.clientId] ?: r.clientId
+                                    Text(clientEmail, style = MaterialTheme.typography.titleMedium)
+                                    Spacer(Modifier.height(4.dp))
+                                    Text("${r.date}  ${r.start}-${r.end}")
+                                }
                             }
                         }
                     }

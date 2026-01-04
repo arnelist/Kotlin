@@ -25,6 +25,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.PaddingValues
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.core.tween
+import lt.arnastamasiunas.coachbooking.ui.components.pressScaleClickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -177,29 +182,36 @@ fun BookingScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
-                        items(items = visibleSlots) { slot: Timeslot ->
+                        items(visibleSlots) { slot ->
                             val isBooked = slot.status == "booked"
                             val disabled = isBooked || bookingLoading
 
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable(enabled = !disabled) {
-                                        bookingSlot = slot
-                                    }
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = fadeIn(tween(220)) + slideInVertically(tween(220)) { it/6 }
                             ) {
-                                Row(
-                                    Modifier
+                                Card(
+                                    modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(14.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                                        .then(
+                                            if (!disabled) Modifier.pressScaleClickable { bookingSlot = slot }
+                                            else Modifier
+                                        ),
+                                    shape = MaterialTheme.shapes.large
                                 ) {
-                                    Text(
-                                        "${slot.start} - ${slot.end}",
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                    Text(if (isBooked) "Užimta" else "Rezervuoti")
+                                    Row(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(14.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            "${slot.start} - ${slot.end}",
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
+                                        Text(if (isBooked) "Užimta" else "Rezervuoti")
+                                    }
                                 }
                             }
                         }

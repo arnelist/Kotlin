@@ -13,6 +13,11 @@ import kotlinx.coroutines.launch
 import lt.arnastamasiunas.coachbooking.data.UserRepository
 import lt.arnastamasiunas.coachbooking.model.TrainerUser
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.core.tween
+import lt.arnastamasiunas.coachbooking.ui.components.pressScaleClickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,18 +80,24 @@ fun GymTrainersScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(trainers) { t ->
-                        val name = t.fullName.ifBlank { t.email }
 
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onTrainerClick(t.uid, t.email) }
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(tween(220)) + slideInVertically(tween(220)) { it/6 }
                         ) {
-                            Column(Modifier.padding(14.dp)) {
-                                Text(name, style = MaterialTheme.typography.titleMedium)
-                                if (t.fullName.isNotBlank()) {
-                                    Spacer(Modifier.height(4.dp))
-                                    Text(t.email, style = MaterialTheme.typography.bodySmall)
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .pressScaleClickable { onTrainerClick(t.uid, t.email) },
+                                shape = MaterialTheme.shapes.large
+                            ) {
+                                Column(Modifier.padding(14.dp)) {
+                                    val name = t.fullName.ifBlank { t.email }
+                                    Text(name, style = MaterialTheme.typography.titleMedium)
+                                    if (t.fullName.isNotBlank()) {
+                                        Spacer(Modifier.height(4.dp))
+                                        Text(t.email, style = MaterialTheme.typography.bodySmall)
+                                    }
                                 }
                             }
                         }

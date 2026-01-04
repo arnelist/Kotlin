@@ -11,6 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import lt.arnastamasiunas.coachbooking.data.UserRepository
 import lt.arnastamasiunas.coachbooking.model.TrainerUser
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.core.tween
+import lt.arnastamasiunas.coachbooking.ui.components.pressScaleClickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,18 +72,25 @@ fun ClientHomeScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(trainers) { t ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onTrainerClick(t.uid, t.email) }
+
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(tween(220)) + slideInVertically(tween(220)) { it/6 }
                         ) {
-                            Column(Modifier.padding(14.dp)) {
-                                Text(
-                                    t.email.ifBlank { "Treneris" },
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Spacer(Modifier.height(4.dp))
-                                Text("ID: ${t.uid}", style = MaterialTheme.typography.bodySmall)
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .pressScaleClickable { onTrainerClick(t.uid, t.email) },
+                                shape = MaterialTheme.shapes.large
+                            ) {
+                                Column(Modifier.padding(14.dp)) {
+                                    Text(
+                                        t.email.ifBlank { "Treneris" },
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                    Text("ID: ${t.uid}", style = MaterialTheme.typography.bodySmall)
+                                }
                             }
                         }
                     }

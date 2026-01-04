@@ -14,6 +14,11 @@ import lt.arnastamasiunas.coachbooking.data.UserRepository
 import lt.arnastamasiunas.coachbooking.model.Reservation
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.core.tween
+import lt.arnastamasiunas.coachbooking.ui.components.pressScaleClickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,20 +99,32 @@ fun ClientReservationsScreen(
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             items(reservations) { r ->
-                                val trainerEmail = trainerEmails[r.trainerId] ?: r.trainerId
 
-                                Card(Modifier.fillMaxWidth()) {
-                                    Column(Modifier.padding(14.dp)) {
-                                        Text(trainerEmail, style = MaterialTheme.typography.titleMedium)
-                                        Spacer(Modifier.height(4.dp))
-                                        Text("${r.date}  ${r.start}-${r.end}")
+                                AnimatedVisibility(
+                                    visible = true,
+                                    enter = fadeIn(tween(220)) + slideInVertically(tween(220)) { it/6 }
+                                ) {
 
-                                        Spacer(Modifier.height(10.dp))
-                                        OutlinedButton(
-                                            onClick = { cancelTarget = r },
-                                            enabled = !cancelLoading && r.timeslotId.isNotBlank()
-                                        ) {
-                                            Text("Atšaukti")
+                                    Card(
+                                        Modifier.fillMaxWidth(),
+                                        shape = MaterialTheme.shapes.large
+                                    ) {
+                                        Column(Modifier.padding(14.dp)) {
+                                            val trainerEmail = trainerEmails[r.trainerId] ?: r.trainerId
+                                            Text(
+                                                trainerEmail,
+                                                style = MaterialTheme.typography.titleMedium
+                                            )
+                                            Spacer(Modifier.height(4.dp))
+                                            Text("${r.date}  ${r.start}-${r.end}")
+
+                                            Spacer(Modifier.height(10.dp))
+                                            OutlinedButton(
+                                                onClick = { cancelTarget = r },
+                                                enabled = !cancelLoading && r.timeslotId.isNotBlank()
+                                            ) {
+                                                Text("Atšaukti")
+                                            }
                                         }
                                     }
                                 }

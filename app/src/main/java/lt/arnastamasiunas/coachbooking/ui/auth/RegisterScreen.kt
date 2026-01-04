@@ -1,10 +1,12 @@
 package lt.arnastamasiunas.coachbooking.ui.auth
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
@@ -30,10 +32,11 @@ fun RegisterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Registracija", style = MaterialTheme.typography.headlineSmall)
+        Text("Registracija", style = MaterialTheme.typography.headlineSmall, color = Color.Yellow)
 
         Spacer(Modifier.height(12.dp))
 

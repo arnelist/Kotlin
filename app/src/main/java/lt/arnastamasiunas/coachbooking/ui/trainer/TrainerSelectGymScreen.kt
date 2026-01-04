@@ -13,6 +13,10 @@ import lt.arnastamasiunas.coachbooking.data.AuthRepository
 import lt.arnastamasiunas.coachbooking.data.GymRepository
 import lt.arnastamasiunas.coachbooking.data.UserRepository
 import lt.arnastamasiunas.coachbooking.model.Gym
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.core.tween
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,27 +71,34 @@ fun TrainerSelectGymScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(gyms) { g ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable(enabled = !saving) {
-                                        saving = true
-                                        message = null
-                                        error = null
-                                        val uid = authRepo.currentUid()
-                                        if (uid == null) {
-                                            error = "Neprisijungęs treneris"
-                                            saving = false
-                                        } else {
-                                            selectedGymToSave = g
-                                        }
-                                    }
+
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = fadeIn(tween(220)) + slideInVertically(tween(220)) { it/6 }
                             ) {
-                                Column(Modifier.padding(14.dp)) {
-                                    Text(g.name, style = MaterialTheme.typography.titleMedium)
-                                    if (g.address.isNotBlank()) {
-                                        Spacer(Modifier.height(4.dp))
-                                        Text(g.address, style = MaterialTheme.typography.bodySmall)
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable(enabled = !saving) {
+                                            saving = true
+                                            message = null
+                                            error = null
+                                            val uid = authRepo.currentUid()
+                                            if (uid == null) {
+                                                error = "Neprisijungęs treneris"
+                                                saving = false
+                                            } else {
+                                                selectedGymToSave = g
+                                            }
+                                        },
+                                    shape = MaterialTheme.shapes.large
+                                ) {
+                                    Column(Modifier.padding(14.dp)) {
+                                        Text(g.name, style = MaterialTheme.typography.titleMedium)
+                                        if (g.address.isNotBlank()) {
+                                            Spacer(Modifier.height(4.dp))
+                                            Text(g.address, style = MaterialTheme.typography.bodySmall)
+                                        }
                                     }
                                 }
                             }

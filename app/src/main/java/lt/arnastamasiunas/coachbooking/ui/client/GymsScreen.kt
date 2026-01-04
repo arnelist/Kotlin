@@ -13,6 +13,11 @@ import kotlinx.coroutines.launch
 import lt.arnastamasiunas.coachbooking.data.GymRepository
 import lt.arnastamasiunas.coachbooking.model.Gym
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import lt.arnastamasiunas.coachbooking.ui.components.pressScaleClickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,19 +99,25 @@ fun GymsScreen(
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             items(gyms) { g ->
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { onGymClick(g.id, g.name) }
-                                ) {
-                                    Column(Modifier.padding(14.dp)) {
-                                        Text(g.name, style = MaterialTheme.typography.titleMedium)
-                                        if (g.address.isNotBlank()) {
-                                            Spacer(Modifier.height(4.dp))
-                                            Text(
-                                                g.address,
-                                                style = MaterialTheme.typography.bodySmall
+
+                                AnimatedVisibility(
+                                    visible = true,
+                                    enter = fadeIn(animationSpec = tween(220)) +
+                                            slideInVertically(
+                                                animationSpec = tween(220),
+                                                initialOffsetY = { it / 6 }
                                             )
+                                ) {
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .pressScaleClickable { onGymClick(g.id, g.name) },
+                                        shape = MaterialTheme.shapes.large
+                                    ) {
+                                        Column(Modifier.padding(14.dp)) {
+                                            Text(g.name, style = MaterialTheme.typography.titleMedium)
+                                            Spacer(Modifier.height(4.dp))
+                                            Text(g.address, style = MaterialTheme.typography.bodySmall)
                                         }
                                     }
                                 }

@@ -1,11 +1,13 @@
 package lt.arnastamasiunas.coachbooking.ui.auth
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
@@ -22,10 +24,13 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Prisijungimas", style = MaterialTheme.typography.headlineSmall)
+        Text("CoachBooking", style = MaterialTheme.typography.headlineLarge, color = Color.Yellow)
+        Text("Prisijungimas", style = MaterialTheme.typography.headlineSmall, color = Color.Yellow)
 
         Spacer(Modifier.height(12.dp))
 
