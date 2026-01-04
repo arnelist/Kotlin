@@ -36,7 +36,7 @@ fun ClientReservationsScreen(
             val uniqueTrainerIds = res.map { it.trainerId }.distinct().filter { it.isNotBlank() }
             val map = mutableMapOf<String, String>()
             for (tid in uniqueTrainerIds) {
-                map[tid] = userRepo.getEmailByUid(tid)
+                map[tid] = userRepo.getDisplayName(tid)
             }
             trainerEmails = map
         } catch (e: Exception) {

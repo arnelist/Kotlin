@@ -5,6 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.remember
 import androidx.navigation.compose.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableIntStateOf
 import lt.arnastamasiunas.coachbooking.data.AuthRepository
 import lt.arnastamasiunas.coachbooking.data.UserRepository
 import lt.arnastamasiunas.coachbooking.navigation.Routes
@@ -15,6 +19,7 @@ import lt.arnastamasiunas.coachbooking.ui.auth.LoginScreen
 import lt.arnastamasiunas.coachbooking.ui.auth.RegisterScreen
 import lt.arnastamasiunas.coachbooking.ui.theme.CoachBookingTheme
 import android.net.Uri
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import lt.arnastamasiunas.coachbooking.data.ReservationRepository
@@ -25,6 +30,7 @@ import lt.arnastamasiunas.coachbooking.ui.client.ClientReservationsScreen
 import lt.arnastamasiunas.coachbooking.ui.client.GymsScreen
 import lt.arnastamasiunas.coachbooking.ui.client.GymTrainersScreen
 import lt.arnastamasiunas.coachbooking.ui.trainer.TrainerReservationsScreen
+import lt.arnastamasiunas.coachbooking.ui.trainer.TrainerSelectGymScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +44,11 @@ class MainActivity : ComponentActivity() {
                 val timeslotRepo = remember { TimeslotRepository() }
                 val reservationRepo = remember { ReservationRepository() }
                 val gymRepo = remember { GymRepository() }
+                var trainerGymName by remember { mutableStateOf<String?>(null) }
+                var trainerCanCreate by remember { mutableStateOf(false) }
+                var trainerHomeRefresh by remember { mutableIntStateOf(0) }
+                var trainerGreetingName by remember { mutableStateOf<String?>(null) }
+                var greetingName by remember { mutableStateOf<String?>(null) }
 
                 NavHost(
                     navController = navController,
@@ -68,12 +79,13 @@ class MainActivity : ComponentActivity() {
 
                     composable(Routes.REGISTER) {
                         RegisterScreen(
-                            onRegister = {email, password, role ->
+                            onRegister = { email, password, role, firstName, lastName ->
                                 val uid = authRepo.register(email, password)
-                                userRepo.createUser(uid, email, role)
+                                userRepo.createUser(uid, email, role, firstName, lastName)
 
+                                val roleNorm = role.trim().lowercase()
                                 navController.navigate(
-                                    if (role == "trainer") Routes.TRAINER_HOME else Routes.GYMS
+                                    if (roleNorm == "trainer") Routes.TRAINER_HOME else Routes.GYMS
                                 ) {
                                     popUpTo(Routes.LOGIN) { inclusive = true }
                                 }
@@ -85,7 +97,17 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(Routes.GYMS) {
+
+                        LaunchedEffect(Unit) {
+                            val uid = authRepo.currentUid()
+                            if (uid != null) {
+                                val profile = userRepo.getProfile(uid)
+                                greetingName = profile.firstName.ifBlank { profile.email }
+                            }
+                        }
+
                         GymsScreen(
+                            greeting = greetingName,
                             gymRepo = gymRepo,
                             onLogout = {
                                 authRepo.logout()
@@ -120,8 +142,30 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
+
                     composable(Routes.TRAINER_HOME) {
+                        LaunchedEffect(trainerHomeRefresh) {
+                            val uid = authRepo.currentUid()
+                            if (uid != null) {
+                                val profile = userRepo.getProfile(uid)
+                                trainerGreetingName = profile.firstName.ifBlank { profile.email }
+
+                                val gymId = userRepo.getGymId(uid)
+                                if (!gymId.isNullOrBlank()) {
+                                    trainerGymName = gymRepo.getGymNameById(gymId)
+                                    trainerCanCreate = true
+                                } else {
+                                    trainerGymName = null
+                                    trainerCanCreate = false
+                                }
+                            }
+                        }
+
                         TrainerHomeScreen(
+                            greeting = trainerGreetingName,
+                            currentGymName = trainerGymName,
+                            canCreateTimeslots = trainerCanCreate,
+                            onSelectGym = { navController.navigate(Routes.TRAINER_SELECT_GYM) },
                             onCreateTimeslot = { navController.navigate(Routes.TRAINER_CREATE_SLOT) },
                             onLogout = {
                                 authRepo.logout()
@@ -172,6 +216,15 @@ class MainActivity : ComponentActivity() {
                         TrainerReservationsScreen(
                             authRepo = authRepo,
                             reservationRepo = reservationRepo,
+                            userRepo = userRepo,
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable(Routes.TRAINER_SELECT_GYM) {
+                        TrainerSelectGymScreen(
+                            authRepo = authRepo,
+                            gymRepo = gymRepo,
                             userRepo = userRepo,
                             onBack = { navController.popBackStack() }
                         )

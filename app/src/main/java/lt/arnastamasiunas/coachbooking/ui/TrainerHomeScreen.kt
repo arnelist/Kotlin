@@ -9,9 +9,13 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrainerHomeScreen(
+    greeting: String?,
+    currentGymName: String?,
+    canCreateTimeslots: Boolean,
+    onSelectGym: () -> Unit,
     onCreateTimeslot: () -> Unit,
-    onLogout: () -> Unit,
-    onReservations: () -> Unit
+    onReservations: () -> Unit,
+    onLogout: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -25,12 +29,44 @@ fun TrainerHomeScreen(
             Modifier.fillMaxSize().padding(padding).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("TRAINER HOME")
-            Button(onClick = onCreateTimeslot, modifier = Modifier.fillMaxWidth()) {
+
+            if (!greeting.isNullOrBlank()) {
+                Text(
+                    text = "Sveiki, $greeting",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+
+            Text(
+                text = if (currentGymName.isNullOrBlank())
+                    "Current gym: (nepriskirta)"
+                else
+                    "Current gym: $currentGymName",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Button(onClick = onSelectGym, modifier = Modifier.fillMaxWidth()) {
+                Text("Set Gym")
+            }
+
+            Button(
+                onClick = onCreateTimeslot,
+                enabled = canCreateTimeslots,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text("Create Timeslot")
             }
+
             Button(onClick = onReservations, modifier = Modifier.fillMaxWidth()) {
                 Text("My Reservations")
+            }
+
+            if (!canCreateTimeslots) {
+                Text(
+                    "Pirma priskirk gym, kad galėtum kurti timeslotus.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }

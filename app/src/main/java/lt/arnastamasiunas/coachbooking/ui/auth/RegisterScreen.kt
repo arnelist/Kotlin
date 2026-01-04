@@ -5,18 +5,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun RegisterScreen(
-    onRegister: suspend (email: String, password: String, role: String) -> Unit,
+    onRegister: suspend (
+        email: String,
+        password: String,
+        role: String,
+        firstName: String,
+        lastName: String
+    ) -> Unit,
     onGoLogin: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("client") }
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
@@ -45,6 +52,22 @@ fun RegisterScreen(
             label = { Text("Slaptažodis (min 6)") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = firstName,
+            onValueChange = { firstName = it },
+            label = { Text("Vardas") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = lastName,
+            onValueChange = { lastName = it },
+            label = { Text("Pavardė") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Spacer(Modifier.height(12.dp))
@@ -85,7 +108,7 @@ fun RegisterScreen(
         LaunchedEffect(loading) {
             if (!loading) return@LaunchedEffect
             try {
-                onRegister(email.trim(), password, role)
+                onRegister(email.trim(), password, role, firstName, lastName)
             } catch (e: Exception) {
                 error = e.message ?: "Registracija nepavyko"
             } finally {

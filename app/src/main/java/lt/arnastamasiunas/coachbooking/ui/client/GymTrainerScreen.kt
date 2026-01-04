@@ -27,7 +27,9 @@ fun GymTrainersScreen(
 
     LaunchedEffect(gymId) {
         loading = true; error = null
-        try { trainers = userRepo.getTrainersByGym(gymId) }
+        try {
+            trainers = userRepo.getTrainersByGym(gymId)
+        }
         catch (e: Exception) { error = e.message ?: "Nepavyko gauti trenerių" }
         finally { loading = false }
     }
@@ -62,7 +64,14 @@ fun GymTrainersScreen(
                                 .clickable { onTrainerClick(t.uid, t.email) }
                         ) {
                             Column(Modifier.padding(14.dp)) {
-                                Text(t.email, style = MaterialTheme.typography.titleMedium)
+                                val displayName = t.fullName.ifBlank { t.email }
+
+                                Text(displayName, style = MaterialTheme.typography.titleMedium)
+
+                                if (t.fullName.isNotBlank()) {
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(t.email, style = MaterialTheme.typography.bodySmall)
+                                }
                             }
                         }
                     }

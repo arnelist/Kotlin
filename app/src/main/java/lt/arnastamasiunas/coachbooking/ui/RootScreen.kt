@@ -26,7 +26,7 @@ fun RootScreen (
         } else {
             val role = userRepo.getRole(uid).trim().lowercase()
             navController.navigate(
-                if (role === "trainer") Routes.TRAINER_HOME else Routes.GYMS
+                if (role == "trainer") Routes.TRAINER_HOME else Routes.GYMS
             ) { popUpTo(0) }
         }
         loading = false

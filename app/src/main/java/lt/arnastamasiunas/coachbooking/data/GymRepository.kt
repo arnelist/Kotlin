@@ -17,4 +17,9 @@ class GymRepository(
             )
         }.sortedBy { it.name.lowercase() }
     }
+
+    suspend fun getGymNameById(gymId: String): String {
+        val doc = db.collection("gyms").document(gymId).get().await()
+        return doc.getString("name") ?: "Gym"
+    }
 }

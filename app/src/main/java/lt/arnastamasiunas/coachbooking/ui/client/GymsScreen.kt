@@ -15,6 +15,7 @@ import lt.arnastamasiunas.coachbooking.model.Gym
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GymsScreen(
+    greeting: String?,
     gymRepo: GymRepository,
     onLogout: () -> Unit,
     onGymClick: (gymId: String, gymName: String) -> Unit,
@@ -41,32 +42,72 @@ fun GymsScreen(
             )
         }
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
             when {
-                loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                loading -> {
+                    Box(
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-                error != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(error!!, color = MaterialTheme.colorScheme.error)
+
+                error != null -> {
+                    Box(
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(error!!, color = MaterialTheme.colorScheme.error)
+                    }
                 }
-                gyms.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Kol kas gym'ų nėra")
+
+                gyms.isEmpty() -> {
+                    Box(
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Kol kas gym'ų nėra")
+                    }
                 }
-                else -> LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(gyms) { g ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onGymClick(g.id, g.name) }
+
+                else -> {
+                    Column(
+                        Modifier.fillMaxSize()
+                    ) {
+
+                        if (!greeting.isNullOrBlank()) {
+                            Text(
+                                text = "Sveiki, $greeting",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+
+                        LazyColumn(
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Column(Modifier.padding(14.dp)) {
-                                Text(g.name, style = MaterialTheme.typography.titleMedium)
-                                if (g.address.isNotBlank()) {
-                                    Spacer(Modifier.height(4.dp))
-                                    Text(g.address, style = MaterialTheme.typography.bodySmall)
+                            items(gyms) { g ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { onGymClick(g.id, g.name) }
+                                ) {
+                                    Column(Modifier.padding(14.dp)) {
+                                        Text(g.name, style = MaterialTheme.typography.titleMedium)
+                                        if (g.address.isNotBlank()) {
+                                            Spacer(Modifier.height(4.dp))
+                                            Text(
+                                                g.address,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

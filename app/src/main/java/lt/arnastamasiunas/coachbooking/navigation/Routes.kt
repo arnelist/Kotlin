@@ -11,4 +11,5 @@ object Routes {
     const val BOOKING = "booking"
     const val CLIENT_RESERVATIONS = "client_reservations"
     const val TRAINER_RESERVATIONS = "trainer_reservations"
+    const val TRAINER_SELECT_GYM = "trainer_select_gym"
 }
