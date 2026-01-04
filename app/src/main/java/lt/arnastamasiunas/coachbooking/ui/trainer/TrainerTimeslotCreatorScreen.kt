@@ -52,8 +52,8 @@ fun TrainerTimeslotCreatorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Timeslot Creator") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } }
+                title = { Text("Laikų kūrimas") },
+                navigationIcon = { TextButton(onClick = onBack) { Text("Atgal") } }
             )
         }
     ) { padding ->
@@ -92,7 +92,7 @@ fun TrainerTimeslotCreatorScreen(
                     OutlinedButton(
                         onClick = { expandedStart = true },
                         modifier = Modifier.fillMaxWidth()
-                    ) { Text("Start: $start") }
+                    ) { Text("Pradžia: $start") }
 
                     DropdownMenu(expanded = expandedStart, onDismissRequest = { expandedStart = false }) {
                         times.forEach { t ->
@@ -115,7 +115,7 @@ fun TrainerTimeslotCreatorScreen(
                     OutlinedButton(
                         onClick = { expandedEnd = true },
                         modifier = Modifier.fillMaxWidth()
-                    ) { Text("End: $end") }
+                    ) { Text("Pabaiga: $end") }
 
                     DropdownMenu(expanded = expandedEnd, onDismissRequest = { expandedEnd = false }) {
                         times.forEach { t ->
@@ -173,17 +173,11 @@ fun TrainerTimeslotCreatorScreen(
                     )
                     message = "Sukurta: $dateStr $start-$end"
                 } catch (e: Exception) {
-                    error = e.message ?: "Nepavyko sukurti timeslot"
+                    error = e.message ?: "Nepavyko sukurti laiko"
                 } finally {
                     loading = false
                 }
             }
-
-            Spacer(Modifier.height(20.dp))
-            Text(
-                "Tip: Sukūrus timeslot, prisijunk kaip client ir Booking ekrane jis atsiras (status=free).",
-                style = MaterialTheme.typography.bodySmall
-            )
         }
     }
 }

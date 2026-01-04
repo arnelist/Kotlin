@@ -9,8 +9,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import lt.arnastamasiunas.coachbooking.data.GymRepository
 import lt.arnastamasiunas.coachbooking.model.Gym
+import androidx.compose.runtime.rememberCoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,21 +26,31 @@ fun GymsScreen(
     var gyms by remember { mutableStateOf<List<Gym>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        loading = true; error = null
-        try { gyms = gymRepo.getGyms() }
-        catch (e: Exception) { error = e.message ?: "Nepavyko gauti gym'ų" }
-        finally { loading = false }
+    fun refresh() {
+        scope.launch {
+            loading = true
+            error = null
+            try {
+                gyms = gymRepo.getGyms()
+            } catch (e: Exception) {
+                error = e.message ?: "Nepavyko gauti gymų"
+            } finally {
+                loading = false
+            }
+        }
     }
+
+    LaunchedEffect(Unit) { refresh() }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Gym'ai") },
+                title = { Text("Sporto salės") },
                 actions = {
                     TextButton(onClick = onReservations) { Text("Rezervacijos") }
-                    TextButton(onClick = onLogout) { Text("Logout") } }
+                    TextButton(onClick = onLogout) { Text("Atsijungti") } }
             )
         }
     ) { padding ->
@@ -48,31 +60,20 @@ fun GymsScreen(
                 .padding(padding)
         ) {
             when {
-                loading -> {
-                    Box(
-                        Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
 
-                error != null -> {
-                    Box(
-                        Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                error != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(error!!, color = MaterialTheme.colorScheme.error)
+                        Spacer(Modifier.height(8.dp))
+                        Button(onClick = { refresh() }) { Text("Bandyt dar kartą") }
                     }
                 }
 
-                gyms.isEmpty() -> {
-                    Box(
-                        Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Kol kas gym'ų nėra")
-                    }
+                gyms.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Kol kas gym'ų nėra")
                 }
 
                 else -> {

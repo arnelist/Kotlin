@@ -3,6 +3,7 @@ package lt.arnastamasiunas.coachbooking.data
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import lt.arnastamasiunas.coachbooking.model.Reservation
+
 class ReservationRepository(
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
@@ -55,6 +56,7 @@ class ReservationRepository(
                 date = d.getString("date") ?: "",
                 start = d.getString("start") ?: "",
                 end = d.getString("end") ?: "",
+                timeslotId = d.getString("timeslotId") ?: "",
                 createdAt = d.getLong("createdAt") ?: 0L
             )
         }.sortedByDescending { it.createdAt }
@@ -74,8 +76,29 @@ class ReservationRepository(
                 date = d.getString("date") ?: "",
                 start = d.getString("start") ?: "",
                 end = d.getString("end") ?: "",
+                timeslotId = d.getString("timeslotId") ?: "",
                 createdAt = d.getLong("createdAt") ?: 0L
             )
         }.sortedByDescending { it.createdAt }
+    }
+
+    suspend fun cancelReservation(reservationId: String, timeslotId: String) {
+        val resRef = db.collection("reservations").document(reservationId)
+        val slotRef = db.collection("timeslots").document(timeslotId)
+
+        db.runTransaction { tx ->
+            val resSnap = tx.get(resRef)
+            if (!resSnap.exists()) {
+                throw IllegalStateException("Rezervacija jau pašalinta.")
+            }
+
+            val slotSnap = tx.get(slotRef)
+            if (slotSnap.exists()) {
+                tx.update(slotRef, "status", "free")
+            }
+
+            tx.delete(resRef)
+            null
+        }.await()
     }
 }

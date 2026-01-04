@@ -44,8 +44,8 @@ fun TrainerSelectGymScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Pasirink gym") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } }
+                title = { Text("Pasirink sporto salę") },
+                navigationIcon = { TextButton(onClick = onBack) { Text("Atgal") } }
             )
         }
     ) { padding ->

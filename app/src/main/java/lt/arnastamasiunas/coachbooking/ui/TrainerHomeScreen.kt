@@ -20,8 +20,8 @@ fun TrainerHomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Trainer") },
-                actions = { TextButton(onClick = onLogout) { Text("Logout") } }
+                title = { Text("Treneris") },
+                actions = { TextButton(onClick = onLogout) { Text("Atsijungti") } }
             )
         }
     ) { padding ->
@@ -39,14 +39,14 @@ fun TrainerHomeScreen(
 
             Text(
                 text = if (currentGymName.isNullOrBlank())
-                    "Current gym: (nepriskirta)"
+                    "Priskirta sporto salė: (nepriskirta)"
                 else
                     "Current gym: $currentGymName",
                 style = MaterialTheme.typography.bodyMedium
             )
 
             Button(onClick = onSelectGym, modifier = Modifier.fillMaxWidth()) {
-                Text("Set Gym")
+                Text("Prisiskirti salę")
             }
 
             Button(
@@ -54,11 +54,11 @@ fun TrainerHomeScreen(
                 enabled = canCreateTimeslots,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Create Timeslot")
+                Text("Sukurti laiką")
             }
 
             Button(onClick = onReservations, modifier = Modifier.fillMaxWidth()) {
-                Text("My Reservations")
+                Text("Mano rezervacijos")
             }
 
             if (!canCreateTimeslots) {

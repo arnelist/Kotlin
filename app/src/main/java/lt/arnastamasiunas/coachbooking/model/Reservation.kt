@@ -7,5 +7,6 @@ data class Reservation(
     val date: String = "",     // "yyyy-MM-dd"
     val start: String = "",     // "HH:mm"
     val end: String = "",       // "HH:mm"
+    var timeslotId: String = "",
     val createdAt: Long = 0L
 )

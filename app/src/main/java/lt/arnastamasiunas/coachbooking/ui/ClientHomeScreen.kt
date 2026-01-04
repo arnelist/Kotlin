@@ -43,8 +43,8 @@ fun ClientHomeScreen(
             TopAppBar(
                 title = { Text("Treneriai") },
                 actions = {
-                    TextButton(onClick = { refreshKey++ }) { Text("Refresh") }
-                    TextButton(onClick = onLogout) { Text("Logout") }
+                    TextButton(onClick = { refreshKey++ }) { Text("Perkrauti") }
+                    TextButton(onClick = onLogout) { Text("Atsijungti") }
                 }
             )
         }
@@ -74,7 +74,7 @@ fun ClientHomeScreen(
                         ) {
                             Column(Modifier.padding(14.dp)) {
                                 Text(
-                                    t.email.ifBlank { "Trainer" },
+                                    t.email.ifBlank { "Treneris" },
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 Spacer(Modifier.height(4.dp))
