@@ -34,15 +34,27 @@ class TimeslotRepository(
         end: String,
         order: Long
     ) {
-        val data = hashMapOf(
-            "trainerId" to trainerId,
-            "date" to date,
-            "start" to start,
-            "end" to end,
-            "status" to "free",
-            "order" to order,
-            "createdAt" to System.currentTimeMillis()
-        )
-        db.collection("timeslots").add(data).await()
+        val docId = "${trainerId}_${date}_${start}".replace(":", "-")
+        val ref = db.collection("timeslots").document(docId)
+
+        db.runTransaction { tx ->
+            val snap = tx.get(ref)
+            if (snap.exists()) {
+                throw IllegalStateException("Timeslot $date $start jau egzistuoja.")
+            }
+
+            val data = hashMapOf(
+                "trainerId" to trainerId,
+                "date" to date,
+                "start" to start,
+                "end" to end,
+                "status" to "free",
+                "order" to order,
+                "createdAt" to System.currentTimeMillis()
+            )
+
+            tx.set(ref, data)
+            null
+        }.await()
     }
 }

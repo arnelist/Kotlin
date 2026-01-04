@@ -5,6 +5,7 @@ data class Reservation(
     val clientId: String = "",
     val trainerId: String = "",
     val date: String = "",     // "yyyy-MM-dd"
-    val time: String = "",     // "HH:mm"
+    val start: String = "",     // "HH:mm"
+    val end: String = "",       // "HH:mm"
     val createdAt: Long = 0L
 )

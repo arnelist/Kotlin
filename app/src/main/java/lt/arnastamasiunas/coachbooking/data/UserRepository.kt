@@ -48,4 +48,30 @@ class UserRepository(
     suspend fun createTrainerDoc(uid: String, email: String) {
         createUser(uid = uid, email = email, role = "trainer")
     }
+
+    suspend fun setGym(uid: String, gymId: String) {
+        db.collection("users").document(uid)
+            .update("gymId", gymId)
+            .await()
+    }
+
+    suspend fun getTrainersByGym(gymId: String): List<TrainerUser> {
+        val snap = db.collection("users")
+            .whereEqualTo("role", "trainer")
+            .whereEqualTo("gymId", gymId)
+            .get()
+            .await()
+
+        return snap.documents.map { doc ->
+            TrainerUser(
+                uid = doc.getString("uid") ?: doc.id,
+                email = doc.getString("email") ?: ""
+            )
+        }.sortedBy { it.email.lowercase() }
+    }
+
+    suspend fun getEmailByUid(uid: String): String {
+        val doc = db.collection("users").document(uid).get().await()
+        return doc.getString("email") ?: uid
+    }
 }

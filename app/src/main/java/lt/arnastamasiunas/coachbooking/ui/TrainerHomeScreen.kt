@@ -10,7 +10,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun TrainerHomeScreen(
     onCreateTimeslot: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onReservations: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -27,6 +28,9 @@ fun TrainerHomeScreen(
             Text("TRAINER HOME")
             Button(onClick = onCreateTimeslot, modifier = Modifier.fillMaxWidth()) {
                 Text("Create Timeslot")
+            }
+            Button(onClick = onReservations, modifier = Modifier.fillMaxWidth()) {
+                Text("My Reservations")
             }
         }
     }

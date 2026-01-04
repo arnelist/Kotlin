@@ -2,7 +2,7 @@ package lt.arnastamasiunas.coachbooking.data
 
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
-
+import lt.arnastamasiunas.coachbooking.model.Reservation
 class ReservationRepository(
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
@@ -39,5 +39,43 @@ class ReservationRepository(
 
             null
         }.await()
+    }
+
+    suspend fun getClientReservations(clientId: String): List<Reservation> {
+        val snap = db.collection("reservations")
+            .whereEqualTo("clientId", clientId)
+            .get()
+            .await()
+
+        return snap.documents.map { d ->
+            Reservation(
+                id = d.id,
+                clientId = d.getString("clientId") ?: "",
+                trainerId = d.getString("trainerId") ?: "",
+                date = d.getString("date") ?: "",
+                start = d.getString("start") ?: "",
+                end = d.getString("end") ?: "",
+                createdAt = d.getLong("createdAt") ?: 0L
+            )
+        }.sortedByDescending { it.createdAt }
+    }
+
+    suspend fun getTrainerReservations(trainerId: String): List<Reservation> {
+        val snap = db.collection("reservations")
+            .whereEqualTo("trainerId", trainerId)
+            .get()
+            .await()
+
+        return snap.documents.map { d ->
+            Reservation(
+                id = d.id,
+                clientId = d.getString("clientId") ?: "",
+                trainerId = d.getString("trainerId") ?: "",
+                date = d.getString("date") ?: "",
+                start = d.getString("start") ?: "",
+                end = d.getString("end") ?: "",
+                createdAt = d.getLong("createdAt") ?: 0L
+            )
+        }.sortedByDescending { it.createdAt }
     }
 }

@@ -10,7 +10,6 @@ import lt.arnastamasiunas.coachbooking.data.UserRepository
 import lt.arnastamasiunas.coachbooking.navigation.Routes
 import lt.arnastamasiunas.coachbooking.ui.BookingScreen
 import lt.arnastamasiunas.coachbooking.ui.RootScreen
-import lt.arnastamasiunas.coachbooking.ui.ClientHomeScreen
 import lt.arnastamasiunas.coachbooking.ui.TrainerHomeScreen
 import lt.arnastamasiunas.coachbooking.ui.auth.LoginScreen
 import lt.arnastamasiunas.coachbooking.ui.auth.RegisterScreen
@@ -21,6 +20,11 @@ import androidx.navigation.navArgument
 import lt.arnastamasiunas.coachbooking.data.ReservationRepository
 import lt.arnastamasiunas.coachbooking.data.TimeslotRepository
 import lt.arnastamasiunas.coachbooking.ui.trainer.TrainerTimeslotCreatorScreen
+import lt.arnastamasiunas.coachbooking.data.GymRepository
+import lt.arnastamasiunas.coachbooking.ui.client.ClientReservationsScreen
+import lt.arnastamasiunas.coachbooking.ui.client.GymsScreen
+import lt.arnastamasiunas.coachbooking.ui.client.GymTrainersScreen
+import lt.arnastamasiunas.coachbooking.ui.trainer.TrainerReservationsScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +37,7 @@ class MainActivity : ComponentActivity() {
                 val userRepo = remember { UserRepository() }
                 val timeslotRepo = remember { TimeslotRepository() }
                 val reservationRepo = remember { ReservationRepository() }
+                val gymRepo = remember { GymRepository() }
 
                 NavHost(
                     navController = navController,
@@ -50,7 +55,7 @@ class MainActivity : ComponentActivity() {
                                 val role = userRepo.getRole(uid)
 
                                 navController.navigate(
-                                    if (role == "trainer") Routes.TRAINER_HOME else Routes.CLIENT_HOME
+                                    if (role == "trainer") Routes.TRAINER_HOME else Routes.GYMS
                                 ) {
                                     popUpTo(Routes.LOGIN) { inclusive = true }
                                 }
@@ -68,7 +73,7 @@ class MainActivity : ComponentActivity() {
                                 userRepo.createUser(uid, email, role)
 
                                 navController.navigate(
-                                    if (role == "trainer") Routes.TRAINER_HOME else Routes.CLIENT_HOME
+                                    if (role == "trainer") Routes.TRAINER_HOME else Routes.GYMS
                                 ) {
                                     popUpTo(Routes.LOGIN) { inclusive = true }
                                 }
@@ -79,29 +84,50 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable(Routes.CLIENT_HOME) {
-                        ClientHomeScreen(
-                            userRepo = userRepo,
+                    composable(Routes.GYMS) {
+                        GymsScreen(
+                            gymRepo = gymRepo,
                             onLogout = {
                                 authRepo.logout()
-                                navController.navigate(Routes.LOGIN) {
-                                    popUpTo(0)
-                                }
+                                navController.navigate(Routes.LOGIN) { popUpTo(0) }
                             },
+                            onReservations = { navController.navigate(Routes.CLIENT_RESERVATIONS) },
+                            onGymClick = { gymId, gymName ->
+                                val nameEncoded = Uri.encode(gymName)
+                                navController.navigate("${Routes.GYM_TRAINERS}?gymId=$gymId&gymName=$nameEncoded")
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = "${Routes.GYM_TRAINERS}?gymId={gymId}&gymName={gymName}",
+                        arguments = listOf(
+                            navArgument("gymId") { type = NavType.StringType; defaultValue = "" },
+                            navArgument("gymName") { type = NavType.StringType; defaultValue = "" }
+                        )
+                    ) { backStackEntry ->
+                        val gymId = backStackEntry.arguments?.getString("gymId") ?: ""
+                        val gymName = backStackEntry.arguments?.getString("gymName") ?: ""
+
+                        GymTrainersScreen(
+                            gymId = gymId,
+                            gymName = gymName,
+                            userRepo = userRepo,
+                            onBack = { navController.popBackStack() },
                             onTrainerClick = { trainerId, trainerEmail ->
                                 val emailEncoded = Uri.encode(trainerEmail)
                                 navController.navigate("${Routes.BOOKING}?trainerId=$trainerId&trainerEmail=$emailEncoded")
                             }
                         )
                     }
-
                     composable(Routes.TRAINER_HOME) {
                         TrainerHomeScreen(
                             onCreateTimeslot = { navController.navigate(Routes.TRAINER_CREATE_SLOT) },
                             onLogout = {
                                 authRepo.logout()
                                 navController.navigate(Routes.LOGIN) { popUpTo(0) }
-                            }
+                            },
+                            onReservations = { navController.navigate(Routes.TRAINER_RESERVATIONS) }
                         )
                     }
 
@@ -129,6 +155,24 @@ class MainActivity : ComponentActivity() {
                         TrainerTimeslotCreatorScreen(
                             authRepo = authRepo,
                             timeslotRepo = timeslotRepo,
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable(Routes.CLIENT_RESERVATIONS) {
+                        ClientReservationsScreen(
+                            authRepo = authRepo,
+                            reservationRepo = reservationRepo,
+                            userRepo = userRepo,
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable(Routes.TRAINER_RESERVATIONS) {
+                        TrainerReservationsScreen(
+                            authRepo = authRepo,
+                            reservationRepo = reservationRepo,
+                            userRepo = userRepo,
                             onBack = { navController.popBackStack() }
                         )
                     }
